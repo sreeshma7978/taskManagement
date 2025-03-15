@@ -26,7 +26,7 @@ class TaskController extends Controller
     public function addTask(Request $request)
     {
         
-         // Validate input in the service layer (although you can validate in the controller as well)
+         // Validate input 
          $validator = validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description'=>'nullable',
@@ -89,7 +89,7 @@ class TaskController extends Controller
 
         return response()->json([
             'status' => false,
-            'message' => 'Failed to update task'
+            'message' => 'Failed to update task or task not found'
         ], 400);
     }
     public function markAsComplete($id)

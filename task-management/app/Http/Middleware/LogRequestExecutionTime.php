@@ -17,7 +17,7 @@ class LogRequestExecutionTime
     public function handle(Request $request, Closure $next): Response
     {
 
-        // Start measuring time before the request is processed
+        // Start measuring time
         $startTime = microtime(true);
 
         // Proceed with the request
@@ -26,10 +26,9 @@ class LogRequestExecutionTime
         // Calculate the execution time
         $executionTime = microtime(true) - $startTime;
 
-        // Log the execution time with the request URL
-        Log::info('Request to ' . $request->url() . ' executed in ' . round($executionTime, 3) . ' seconds.');
+        // Log the execution time
+        Log::error('Request to ' . $request->url() . ' executed in ' . round($executionTime, 3) . ' seconds.');
 
         return $response;
-        return $next($request);
     }
 }

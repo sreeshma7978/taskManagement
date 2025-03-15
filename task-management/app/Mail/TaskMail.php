@@ -16,9 +16,13 @@ class TaskMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    protected $user;
+    protected $task;
+    
+    public function __construct($user, $task)
     {
-        //
+        $this->user = $user;
+        $this->task = $task;
     }
 
     /**
@@ -38,6 +42,10 @@ class TaskMail extends Mailable
     {
         return new Content(
             view: 'emails.newTask',
+            with: [
+                'user' => $this->user,
+                'task' => $this->task,
+            ],
         );
     }
 

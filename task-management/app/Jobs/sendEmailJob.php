@@ -13,14 +13,17 @@ class sendEmailJob implements ShouldQueue
 
     use Queueable;
     public $email;
-
+    public $user;
+    public $task;
     /**
      * Create a new job instance.
      */
-    public function __construct($email)
+    public function __construct($email,$user,$task)
     {
         //
         $this->email = $email;
+        $this->user = $user;
+        $this->task = $task;
     }
 
     /**
@@ -30,8 +33,8 @@ class sendEmailJob implements ShouldQueue
     {
         try
         {
-            Mail::to($this->email)->send(new TaskMail());
-            Log::error("email send ");
+            Mail::to($this->email)->send(new TaskMail($this->user,$this->task));
+            Log::info("email send ");
         }
         catch(Exception $e)
         {

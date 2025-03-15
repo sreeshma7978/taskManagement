@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Jobs\sendEmailJob;
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TaskService
@@ -22,20 +23,28 @@ class TaskService
             'updated_by' => $request->user()->id
 
         ]);
-        return 3;
         return $task;
     }
-    public function updateTask($id,Request $request)
+    public function updateTask($id, Request $request)
     {
-       
+        $task = Task::find($id);
+        
+        if (!$task) {
+            return false;
+        }
+        
         // Update the task's assigned user
-        $update =Task::where('id', $id)->first()?->update(['assigned_to' => $request->assigned_to]);
-        $email = "sreeshma7978@gmail.com";
-        sendEmailJob::dispatch($email);
-
-
-        return $update;
-    }
+        $task->update(['assigned_to' => $request->assigned_to]);
+        
+        // Get the user who is being assigned the task
+        $user = User::select('name','email')->where('id',$request->assigned_to)->first();
+        
+        if ($user) {
+            // Dispatch email job with user and updated task data
+            sendEmailJob::dispatch($user->email, $user, $task);
+        }
+        
+        return true;}
     public function completeTask($id)
     {
         $update =Task::where('id', $id)->first()?->update(['status' => 'completed']);
@@ -49,7 +58,8 @@ class TaskService
             $query->where('created_by', $user->id)
                   ->orWhere('assigned_to', $user->id);
         });
-
+        if ($request->has('id')) 
+            $tasks->where('id',$request->id);
         if ($request->has('status')) 
             $tasks->where('status',$request->status);
         if ($request->has('title')) 
@@ -59,6 +69,7 @@ class TaskService
         if ($request->has('assigned_to')) 
             $tasks->where('assigned_to',$request->assigned_to);
          $tasks = $tasks->get();
+         
          return $tasks;
     }
 }
